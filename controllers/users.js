@@ -28,7 +28,7 @@ module.exports.createUser = async (req, res) => {
 module.exports.getUsers = async (req, res) => {
   try {
     const users = await User.find({});
-    res.status(200).send(users);
+    return res.status(200).send(users);
   } catch (error) {
     return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
   }
@@ -58,7 +58,7 @@ module.exports.updateUser = async (req, res) => {
       { name, about },
       { new: true, runValidators: true },
     ).orFail(() => new Error('NotFoundError'));
-    res.status(OK).send({
+    return res.status(OK).send({
       name: user.name,
       about: user.about,
     });
@@ -67,10 +67,9 @@ module.exports.updateUser = async (req, res) => {
       return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному ID не найден' });
     }
     if (error.name === 'ValidationError') {
-      res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-    } else {
-      res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
+      return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
     }
+    return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
   }
 };
 
@@ -82,15 +81,14 @@ module.exports.updateAvatar = async (req, res) => {
       { avatar },
       { new: true, runValidators: true },
     ).orFail(() => new Error('NotFoundError'));
-    res.status(OK).send({ avatar: user.avatar });
+    return res.status(OK).send({ avatar: user.avatar });
   } catch (error) {
     if (error.message === 'NotFoundError') {
       return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному ID не найден' });
     }
     if (error.name === 'ValidationError') {
-      res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-    } else {
-      res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
+      return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
     }
+    return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
   }
 };

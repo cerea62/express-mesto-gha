@@ -19,19 +19,18 @@ module.exports.createCard = async (req, res) => {
     });
   } catch (error) {
     if (error.name === 'ValidationError') {
-      res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-    } else {
-      res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
+      return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
     }
+    return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
   }
 };
 
 module.exports.getCards = async (req, res) => {
   try {
     const card = await Card.find({});
-    res.status(OK).send({ card });
+    return res.status(OK).send({ card });
   } catch (error) {
-    res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
+    return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
   }
 };
 
@@ -65,7 +64,7 @@ module.exports.likeCard = async (req, res) => {
       { $addToSet: { likes: owner } },
       { new: true },
     ).orFail(() => new Error('NotFoundError'));
-    res.status(OK).send({ card });
+    return res.status(OK).send({ card });
   } catch (error) {
     if (error.message === 'NotFoundError') {
       return res.status(NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
@@ -83,7 +82,7 @@ module.exports.dislikeCard = async (req, res) => {
       { $pull: { likes: owner } },
       { new: true },
     ).orFail(() => new Error('NotFoundError'));
-    res.status(OK).send({ card });
+    return res.status(OK).send({ card });
   } catch (error) {
     if (error.message === 'NotFoundError') {
       return res.status(NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
