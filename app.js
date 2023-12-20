@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const routerUser = require('./routes/users');
 const routerCard = require('./routes/cards');
 
-
+const NOT_FOUND = 404;
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useUnifiedTopology: true,
 
@@ -24,5 +24,8 @@ app.use((req, res, next) => {
 
 app.use('/users', routerUser);
 app.use('/cards', routerCard);
+app.use('*', ((req, res) => {
+  res.status(NOT_FOUND).send({ message: 'Запрашиваемый ресурс не найден' });
+}));
 
 app.listen(3000);
