@@ -1,5 +1,10 @@
-[![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml)
+
 # Проект Mesto фронтенд + бэкенд
+В ходе работы над проектной работой №13 был создан бэкенд сервиса, с помощью которого пользователи могут создавать свою галлерею воспоминаний.
+В проекте использован стек технологий:
+NODE JS
+EXPRESS JS
+MONGODB
 
 ## Репозиторий
 https://github.com/cerea62/express-mesto-gha
