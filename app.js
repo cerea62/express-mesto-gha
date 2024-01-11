@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routerUser = require('./routes/users');
 const routerCard = require('./routes/cards');
+const { login, createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
+const errorHandler = require('./middlewares/errorHandler');
 
 const NOT_FOUND = 404;
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
@@ -15,17 +18,13 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-  req.user = {
-    _id: '657af9244e73dbe41131c159',
-  };
-  next();
-});
-
+app.post('/signup', createUser);
+app.post('/signin', login);
+app.use(auth);
 app.use('/users', routerUser);
 app.use('/cards', routerCard);
 app.use('*', ((req, res) => {
   res.status(NOT_FOUND).send({ message: 'Запрашиваемый ресурс не найден' });
 }));
-
+app.use(errorHandler);
 app.listen(3000);
