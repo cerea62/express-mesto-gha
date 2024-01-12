@@ -16,6 +16,9 @@ module.exports.createUser = async (req, res, next) => {
     const {
       name, about, avatar, email, password,
     } = req.body;
+    if (!password) {
+      throw new ValidationError('Поле Password не заполнено');
+    }
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({
       name, about, avatar, email, password: hash,
@@ -34,14 +37,15 @@ module.exports.createUser = async (req, res, next) => {
     if (error.name === 'ValidationError') {
       next(new ValidationError('Переданы некорректные данные'));
     }
-    return next();
+    return next(error);
   }
 };
 
 module.exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select('+password')
+      .orFail(new AccessError('Неправильные имя пользователя или пароль'));
     const matched = await bcrypt.compare(password, user.password);
     if (!matched) {
       throw new AccessError('Неправильные имя пользователя или пароль');
