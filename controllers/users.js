@@ -4,15 +4,11 @@ const User = require('../models/user');
 const ConflictError = require('../errors/ConflictError');
 const ValidationError = require('../errors/ValidationError');
 const AccessError = require('../errors/AccessError');
+const NotFoundError = require('../errors/NotFoundError');
 
 const CREATED = 201;
 const OK = 200;
 const MONGO_DUPLICATE_ERROR = 11000;
-const BAD_REQUEST = 400;
-const NOT_FOUND = 404;
-const CONFLICT = 409;
-const SERVER_ERROR = 500;
-const UNAUTHORIZED = 401;
 
 module.exports.createUser = async (req, res, next) => {
   try {
@@ -33,13 +29,11 @@ module.exports.createUser = async (req, res, next) => {
   } catch (error) {
     if (error.code === MONGO_DUPLICATE_ERROR) {
       next(new ConflictError('Такой пользователь уже существует'));
-      // return res.status(CONFLICT).send({ message: 'Такой пользователь уже существует' });
     }
     if (error.name === 'ValidationError') {
       next(new ValidationError('Переданы некорректные данные'));
-      // return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
     }
-    // return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
+    return next();
   }
 };
 
@@ -56,92 +50,77 @@ module.exports.login = async (req, res, next) => {
       token,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
-    // if (error.message === 'Not_Authentication') {
-    //   return res.status(UNAUTHORIZED).send({ message: 'Неправильные имя пользователя или пароль' });
-    // }
-  //   return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
-  // }
 };
 
-module.exports.getUsers = async (req, res) => {
+module.exports.getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     return res.status(200).send(users);
   } catch (error) {
-    return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
+    return next(error);
   }
 };
 
-module.exports.getUserById = async (req, res) => {
+module.exports.getUserById = async (req, res, next) => {
   try {
     const { userId } = req.params;
-    const user = await User.findById(userId).orFail(() => new Error('NotFoundError'));
+    const user = await User.findById(userId).orFail(() => new NotFoundError('Пользователь по указанному ID не найден'));
     return res.status(OK).send({ data: user });
   } catch (error) {
-    if (error.message === 'NotFoundError') {
-      return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному ID не найден' });
-    }
     if (error.name === 'CastError') {
-      return res.status(BAD_REQUEST).send({ message: 'Передан некорректный Id' });
+      next(new ValidationError('Передан некорректный Id'));
     }
-    return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
-  }
-};
-module.exports.getCurrentUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id).orFail(() => new Error('NotFoundError'));
-    return res.status(OK).send({ data: user });
-  } catch (error) {
-    if (error.message === 'NotFoundError') {
-      return res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
-    }
-    return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
+    return next(error);
   }
 };
 
-module.exports.updateUser = async (req, res) => {
+module.exports.getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .orFail(() => new NotFoundError('Пользователь по указанному ID не найден'));
+    return res.status(OK).send({ data: user });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+module.exports.updateUser = async (req, res, next) => {
   try {
     const { name, about } = req.body;
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { name, about },
       { new: true, runValidators: true },
-    ).orFail(() => new Error('NotFoundError'));
+    )
+      .orFail(() => new NotFoundError('Пользователь по указанному ID не найден'));
     return res.status(OK).send({
       name: user.name,
       about: user.about,
     });
   } catch (error) {
-    if (error.message === 'NotFoundError') {
-      return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному ID не найден' });
-    }
     if (error.name === 'ValidationError') {
-      return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+      next(new ValidationError('Передан некорректный Id'));
     }
-    return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
+    return next(error);
   }
 };
 
-module.exports.updateAvatar = async (req, res) => {
+module.exports.updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { avatar },
       { new: true, runValidators: true },
-    ).orFail(() => new Error('NotFoundError'));
+    )
+      .orFail(() => new NotFoundError('Пользователь по указанному ID не найден'));
     return res.status(OK).send({ avatar: user.avatar });
   } catch (error) {
-    if (error.message === 'NotFoundError') {
-      return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному ID не найден' });
-    }
     if (error.name === 'ValidationError') {
-      return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+      next(new ValidationError('Передан некорректный Id'));
     }
-    return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
+    return next(error);
   }
 };
-
-

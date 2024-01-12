@@ -13,9 +13,6 @@ module.exports = (req, res, next) => {
     const validToken = token.replace('Bearer ', '');
     payload = jwt.verify(validToken, 'super-strong-secret');
   } catch (error) {
-    // if (error.message === 'Not_Authentication') {
-    //   return res.status(UNAUTHORIZED).send({ message: 'Неправильные имя пользователя или пароль' });
-    // }
     if (error.name === 'JsonWebTokenError') {
       return new AccessError({ message: 'С токеном что-то не так' });
     }

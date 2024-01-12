@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const { IS_URL } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema(
   {
@@ -18,7 +19,7 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       validate: {
-        validator: (url) => validator.isURL(url),
+        validator: (url) => IS_URL.test(url),
         message: 'Некорректный URL',
       },
       default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
