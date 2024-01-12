@@ -1,2 +1,3 @@
 const IS_URL = /^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s!"#'()*+,:;<>@[\\\]`{|}~]*$/;
-module.exports = { IS_URL };
+const SECRET_KEY = 'super-strong-secret';
+module.exports = { IS_URL, SECRET_KEY };

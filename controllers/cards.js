@@ -42,7 +42,7 @@ module.exports.delCardById = async (req, res, next) => {
     if (card.owner.toString() !== owner) {
       throw new ForbiddenError('Нет прав для удаления карточки');
     }
-    const deletedCard = await Card.findByIdAndDelete(CardId);
+    const deletedCard = await Card.deleteOne(CardId);
     return res.status(OK).send({ deletedCard });
   } catch (error) {
     return next(error);

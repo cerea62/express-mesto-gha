@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const AccessError = require('../errors/AccessError');
-
-// const UNAUTHORIZED = 401;
+const { SECRET_KEY } = require('../utils/constants');
 
 module.exports = (req, res, next) => {
   let payload;
@@ -11,7 +10,7 @@ module.exports = (req, res, next) => {
       throw new AccessError('Неправильные имя пользователя или пароль');
     }
     const validToken = token.replace('Bearer ', '');
-    payload = jwt.verify(validToken, 'super-strong-secret');
+    payload = jwt.verify(validToken, SECRET_KEY);
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {
       return new AccessError({ message: 'С токеном что-то не так' });

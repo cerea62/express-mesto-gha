@@ -5,6 +5,7 @@ const ConflictError = require('../errors/ConflictError');
 const ValidationError = require('../errors/ValidationError');
 const AccessError = require('../errors/AccessError');
 const NotFoundError = require('../errors/NotFoundError');
+const { SECRET_KEY } = require('../utils/constants');
 
 const CREATED = 201;
 const OK = 200;
@@ -45,7 +46,7 @@ module.exports.login = async (req, res, next) => {
     if (!matched) {
       throw new AccessError('Неправильные имя пользователя или пароль');
     }
-    const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
+    const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
     return res.status(OK).send({
       token,
     });
@@ -57,7 +58,7 @@ module.exports.login = async (req, res, next) => {
 module.exports.getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
-    return res.status(200).send(users);
+    return res.status(ОК).send(users);
   } catch (error) {
     return next(error);
   }
