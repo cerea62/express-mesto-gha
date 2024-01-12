@@ -58,7 +58,7 @@ module.exports.login = async (req, res, next) => {
 module.exports.getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
-    return res.status(ОК).send(users);
+    return res.status(OK).send(users);
   } catch (error) {
     return next(error);
   }
